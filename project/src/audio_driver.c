@@ -1,6 +1,8 @@
+#include "stm32f4xx.h"
 #include "audio_driver.h"
 #include "stm32f4_discovery_audio_codec.h"
 #include "led.h"
+#include "motor.h"
 
 //-------------------------------------------------------------------
 
@@ -14,7 +16,6 @@ const uint16_t AUDIO_SAMPLE[48] = { 0 };	// Stilte
 
 void Project_Init (void)
 {
-	USART_InitTypeDef uartInit;
 	GPIO_InitTypeDef  gpioInit;
 	
 	// Initialize Audio interface
@@ -40,34 +41,20 @@ void Project_Init (void)
 	//Codec_WriteRegister(0x1D, 0x00);
 	//Codec_WriteRegister(0x1E, 0x60);
 	
-	return;
+	// Motor init
+	motor_init();
+	setLed(1);
 	
-	// Initialiseer UART I/O pinnen
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	/*
+	// Motor test
+	// Dit staat hier omdat een van de andere init's niet werkt zonder evdk
+	motor_init();
+	setLedBlink();
+	{int i; for(i=0;i<1000000;i++);}	// Small delay for the motor control board to accept the previous command
+	// Motor één rondje
+	SMC_step(1600,1,1000,1);
+	*/
 	
-	gpioInit.GPIO_Pin   = GPIO_Pin_9 | GPIO_Pin_10;
-  gpioInit.GPIO_Speed = GPIO_Speed_50MHz;
-  gpioInit.GPIO_Mode  = GPIO_Mode_AF;
-	gpioInit.GPIO_OType = GPIO_OType_PP;
-	gpioInit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOB, &gpioInit);
-		
-	// Verbind USART pinnen met AF */
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource9,  GPIO_AF_USART1);  // USART1_TX
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1);  // USART1_RX
-	
-	// Initialiseer UART
-	uartInit.USART_BaudRate   = 115200;
-	uartInit.USART_Parity     = USART_Parity_No;
-	uartInit.USART_StopBits   = USART_StopBits_1;
-	uartInit.USART_WordLength = USART_WordLength_8b;
-	uartInit.USART_Mode       = USART_Mode_Rx | USART_Mode_Tx;
-	uartInit.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_Init(USART2, &uartInit);
-	USART_Cmd(USART2, ENABLE);
-	
-	// Start stappenmotor
-	//Project_StartMotor();
 }
 
 //-------------------------------------------------------------------

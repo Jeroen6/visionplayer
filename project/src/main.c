@@ -26,6 +26,7 @@
 #include "timer.h"
 #include "audio_driver.h"
 #include "stm32f4_discovery_audio_codec.h"
+#include "motor.h"
 
 // ----------------------------------------------------------------------------
 // Main program
@@ -39,7 +40,7 @@ int main(void)
 
   // FPU: Set CP10 and CP11 Full Access
   SCB->CPACR |= ((3U << 10*2)|(3U << 11*2));
-
+		
   // Initialize hardware
   led_init();
   mem_manager_init();
@@ -47,6 +48,7 @@ int main(void)
   timer_init();
   pc_interface_init();
 	Project_Init();		// Initialiseer project
+
 
   // Allocate memory for images
   src = mem_manager_alloc();
