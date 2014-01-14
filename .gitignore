@@ -1,0 +1,8 @@
+*.plg
+*.sct
+*.tra
+*.crf
+*.d
+*.o
+*.__i
+*.lst

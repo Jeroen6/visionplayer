@@ -1,0 +1,5 @@
+--cpu Cortex-M4.fp ".\flash\operators.o" ".\flash\visionset_evd.o" ".\flash\visionset_project.o" ".\flash\camera.o" ".\flash\camera_io.o" ".\flash\dcmi.o" ".\flash\sccb.o" ".\flash\led.o" ".\flash\main.o" ".\flash\mem_manager.o" ".\flash\pc_interface.o" ".\flash\programma.o" ".\flash\stm32f4xx_it.o" ".\flash\timer.o" ".\flash\audio_driver.o" ".\flash\stm32f4_discovery_audio_codec.o" ".\flash\misc.o" ".\flash\stm32f4xx_dcmi.o" ".\flash\stm32f4xx_dma.o" ".\flash\stm32f4xx_exti.o" ".\flash\stm32f4xx_gpio.o" ".\flash\stm32f4xx_i2c.o" ".\flash\stm32f4xx_rcc.o" ".\flash\stm32f4xx_syscfg.o" ".\flash\stm32f4xx_tim.o" ".\flash\stm32f4xx_usart.o" ".\flash\stm32f4xx_spi.o" ".\flash\stm32f4xx_dac.o" ".\flash\system_stm32f4xx.o" ".\flash\startup_stm32f4xx.o" 
+--library_type=microlib --strict --scatter ".\flash\evdk.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\flash\evdk.map" -o .\flash\evdk.axf
