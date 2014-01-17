@@ -1,4 +1,4 @@
-#include "../../../../qt/user/operators.h"
+#include "../operators/operators.h"
 
 // ----------------------------------------------------------------------------
 // EOF
