@@ -101,6 +101,15 @@ typedef enum
   UNKNOWN, CIRCLE, SQUARE, TRIANGLE
 }form_t;
 
+typedef struct
+{
+    uint16_t x;
+    uint16_t y;
+    uint16_t w;
+    uint16_t h;
+}image_roi_t;
+
+
 
 // ----------------------------------------------------------------------------
 // Function prototypes
@@ -274,6 +283,9 @@ void vCropVertical (image_t *src, // must be a binary image
                     uint8_t y1 );
 
 
+image_roi_t sRoiValidate(image_roi_t);
+int imageToBCD(image_t *img, image_roi_t roi);
+					
 #endif // _OPERATORS_H_
 // ----------------------------------------------------------------------------
 // EOF
