@@ -28,7 +28,6 @@ void (*programma_table[])(image_t *, image_t *) =
 {
   WebcamMode,
   VisionSet1,
-	VisionSet2
 };
 
 uint8_t programma_nummer = 0;

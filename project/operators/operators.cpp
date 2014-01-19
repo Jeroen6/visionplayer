@@ -1111,6 +1111,24 @@ int imageToBCD(image_t *img, image_roi_t roi){
         {0xFF,0xFF,0xFF,0xFF,0x00,0xFF,0xFF}    // 9 - ABCDFG
     };
     uint8_t segments[7] = {0,0,0,0,0,0,0};
+		float digit_width;
+    float digit_heigth;
+    float aspect_ratio;
+		uint16_t start_x, end_x;
+    uint16_t start_y, end_y;
+    uint16_t w;
+    uint16_t h;
+		uint16_t img_half_x;
+    uint16_t img_half_y_top;
+    uint16_t img_half_y_bottom;
+    uint16_t img_start_x;
+    uint16_t img_end_x;
+    uint16_t img_start_y;
+    uint16_t img_end_y;
+		uint8_t compare;
+		char segmentchars[7];
+		int result;
+		
     #define SEGMENT_A   0
     #define SEGMENT_B   1
     #define SEGMENT_C   2
@@ -1123,10 +1141,10 @@ int imageToBCD(image_t *img, image_roi_t roi){
 
 
     /* Step 1: Find beginning and end of digit */
-    uint16_t start_x = 0xFFFF, end_x = 0;
-    uint16_t start_y = 0xFFFF, end_y = 0;
-    uint16_t w = roi.w + roi.x;
-    uint16_t h = roi.h + roi.y;
+    start_x = 0xFFFF; end_x = 0;
+    start_y = 0xFFFF; end_y = 0;
+    w = roi.w + roi.x;
+    h = roi.h + roi.y;
     for(y = roi.y; y<h; y++){
         for(x = roi.x; x<w; x++){
             if(img->data[y][x]){
@@ -1151,9 +1169,9 @@ int imageToBCD(image_t *img, image_roi_t roi){
     // Step 2:
     // We know the ratios of 7 segment displays
     // Check aspect ratio of 0.5 for everything except the 1
-    float digit_width  = end_x - start_x;
-    float digit_heigth = end_y - start_y;
-    float aspect_ratio = digit_width / digit_heigth;
+    digit_width  = end_x - start_x;
+    digit_heigth = end_y - start_y;
+    aspect_ratio = digit_width / digit_heigth;
     if( aspect_ratio < 0.5 ){
         // This might be a 1
         return 1;
@@ -1163,13 +1181,13 @@ int imageToBCD(image_t *img, image_roi_t roi){
     }
 
     // Scan for vertical segments at 1/3 and 2/3 of digit heigth
-    uint16_t img_half_x         = roi.x + (start_x + (digit_width / 2));
-    uint16_t img_half_y_top     = roi.y + (start_y + (digit_heigth / 3));
-    uint16_t img_half_y_bottom  = roi.y + (end_y - (digit_heigth / 3));
-    uint16_t img_start_x        = roi.x + start_x;
-    uint16_t img_end_x          = roi.x + start_x + (end_x - start_x);
-    uint16_t img_start_y        = roi.y + start_y;
-    uint16_t img_end_y          = roi.y + start_y + (end_y - start_y);
+    img_half_x         = roi.x + (start_x + (digit_width / 2));
+    img_half_y_top     = roi.y + (start_y + (digit_heigth / 3));
+    img_half_y_bottom  = roi.y + (end_y - (digit_heigth / 3));
+    img_start_x        = roi.x + start_x;
+    img_end_x          = roi.x + start_x + (end_x - start_x);
+    img_start_y        = roi.y + start_y;
+    img_end_y          = roi.y + start_y + (end_y - start_y);
     // Segments F and E (left)
     for(x = img_start_x; x < img_half_x; x++){
         if(img->data[img_half_y_top][x]){
@@ -1217,11 +1235,17 @@ int imageToBCD(image_t *img, image_roi_t roi){
     }
 
 
-    char segmentchars[7] = {'A','B','C','D','E','F','G'};
+    segmentchars[0] = 'A';
+		segmentchars[1] = 'B';
+		segmentchars[2] = 'C';
+		segmentchars[3] = 'D';
+		segmentchars[4] = 'E';
+		segmentchars[5] = 'F';
+		segmentchars[6] = 'G';
 
     // Step 3: Lookup set segments to a number
-    uint8_t compare;
-    int result = -1;
+    
+    result = -1;
     for(y=0; y<10; y++){    // known digit_list
         compare = 0;
         for(x=0; x<7; x++){ // found set elements

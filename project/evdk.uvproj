@@ -165,6 +165,7 @@
             <Capability>1</Capability>
             <DriverSelection>4104</DriverSelection>
           </Flash1>
+          <bUseTDR>0</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe" (-c SWD -ME -p ./obj/evdk.hex -Rst)</Flash3>
           <Flash4></Flash4>
@@ -392,14 +393,19 @@
           <GroupName>user</GroupName>
           <Files>
             <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\timer.c</FilePath>
+            </File>
+            <File>
               <FileName>operators.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\operators.c</FilePath>
             </File>
             <File>
-              <FileName>VisionSet_evd.c</FileName>
+              <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\VisionSet_evd.c</FilePath>
+              <FilePath>.\src\stm32f4xx_it.c</FilePath>
             </File>
             <File>
               <FileName>VisionSet_project.c</FileName>
@@ -407,9 +413,9 @@
               <FilePath>.\src\VisionSet_project.c</FilePath>
             </File>
             <File>
-              <FileName>motor.c</FileName>
+              <FileName>musicplayer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\motor.c</FilePath>
+              <FilePath>.\src\musicplayer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -466,26 +472,16 @@
               <FileType>1</FileType>
               <FilePath>.\src\programma.c</FilePath>
             </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>audio_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\audio_driver.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>stm32f4-stdperiph_lib</GroupName>
           <Files>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\motor.c</FilePath>
+            </File>
             <File>
               <FileName>stm32f4_discovery_audio_codec.c</FileName>
               <FileType>1</FileType>
@@ -734,6 +730,7 @@
             <Capability>1</Capability>
             <DriverSelection>4103</DriverSelection>
           </Flash1>
+          <bUseTDR>0</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe" (-c SWD -ME -p ./flash/evdk.hex -Rst)</Flash3>
           <Flash4></Flash4>
@@ -961,6 +958,11 @@
           <GroupName>user</GroupName>
           <Files>
             <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\timer.c</FilePath>
+            </File>
+            <File>
               <FileName>operators.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\operators.c</FilePath>
@@ -1006,9 +1008,9 @@
               </FileOption>
             </File>
             <File>
-              <FileName>VisionSet_evd.c</FileName>
+              <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\VisionSet_evd.c</FilePath>
+              <FilePath>.\src\stm32f4xx_it.c</FilePath>
             </File>
             <File>
               <FileName>VisionSet_project.c</FileName>
@@ -1016,9 +1018,9 @@
               <FilePath>.\src\VisionSet_project.c</FilePath>
             </File>
             <File>
-              <FileName>motor.c</FileName>
+              <FileName>musicplayer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\motor.c</FilePath>
+              <FilePath>.\src\musicplayer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1075,26 +1077,16 @@
               <FileType>1</FileType>
               <FilePath>.\src\programma.c</FilePath>
             </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>audio_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\audio_driver.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>stm32f4-stdperiph_lib</GroupName>
           <Files>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\motor.c</FilePath>
+            </File>
             <File>
               <FileName>stm32f4_discovery_audio_codec.c</FileName>
               <FileType>1</FileType>

@@ -24,7 +24,7 @@
 #include "programma.h"
 #include "stm32f4xx.h"
 #include "timer.h"
-#include "audio_driver.h"
+#include "musicplayer.h"
 #include "stm32f4_discovery_audio_codec.h"
 #include "motor.h"
 
@@ -47,7 +47,7 @@ int main(void)
   camera_init();
   timer_init();
   pc_interface_init();
-	Project_Init();		// Initialiseer project
+	vInitMusicplayer();		// Initialiseer project
 
 
   // Allocate memory for images
