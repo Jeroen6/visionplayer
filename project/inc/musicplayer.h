@@ -16,19 +16,20 @@
 #define REG_BEEPOFFVOL   0x1D	  // OFFTIME2 | OFFTIME1 | OFFTIME0   | BPVOL4  | BPVOL3    | BPVOL2   | BPVOL1   | BPVOL0
 #define REG_BEEPCONFTONE 0x1E		// BEEP1    | BEEP0    | BEEPMIXDIS | TREBCF1 |  TREBCF0  |  BASSCF1 |  BASSCF0 | TCEN
 
-#define SEVENSEG_START_X       67
-#define SEVENSEG_END_X				 109
-#define LEFT_SEGMENT_START_X   0
-#define RIGHT_SEGMENT_START_X  SEVENSEG_END_X
-#define ROI_START_Y				     60
-#define ROI_END_Y					     80
-#define TONE_ROI               10
+#define SEVENSEG_START_X       65							// Begin van horizontale 7-segment gebied in pixels
+#define SEVENSEG_END_X				 105						// Einde van horizontale 7-segment gebied in pixels
+#define LEFT_SEGMENT_START_X   6							// Begin van horizontale linker  deel van rol in pixels
+#define RIGHT_SEGMENT_START_X  SEVENSEG_END_X	// Begin van horizontale rechter deel van rol in pixels
+#define ROI_START_Y				     60							// Start van verticale ROI in pixels
+#define ROI_END_Y					     64							// Einde van verticale ROI in pixels
+#define TONE_HOR_PX            8							// Maximale horizontale aantal pixels per toon
+#define TONE_MIN_PX						 3							// Minimale aantal pixels in een toon blob totaal
 
 typedef enum
 {
 	Tone_XX = 0,			// Uit
 	
-	// Octaaf 5
+	// Octaaf 5 (Linker deel van rol)
 	Tone_C5 = 1,  		// 521.74 Hz
 	Tone_D5 = 2,  		// 585.37 Hz
 	Tone_E5 = 3, 			// 666.67 Hz
@@ -37,7 +38,7 @@ typedef enum
 	Tone_A5 = 6,  		// 888.89 Hz
 	Tone_B5 = 7,  		// 1000.00 Hz
 	
-	// Octaaf 6
+	// Octaaf 6 (Rechter deel van rol)
 	Tone_C6 = 8,  		// 1043.48 Hz
 	Tone_D6 = 9,  		// 1200.00 Hz
 	Tone_E6 = 10,			// 1333.33 Hz

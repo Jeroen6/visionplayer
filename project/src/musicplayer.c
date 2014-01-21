@@ -58,7 +58,7 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
 		vCentroid(img, i+1, &xc, &yc);
 		
 		// Negeer huidige blob als deze ruis is
-		if ( (blobinfo[i].nof_pixels < 5) )
+		if ( (blobinfo[i].nof_pixels < TONE_MIN_PX) )
 		{
 			continue;
 		}
@@ -74,24 +74,24 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
 		// Vind toon; Linker segment, octaaf 5
 		xc = xc - LEFT_SEGMENT_START_X;
 		
-		if ( (xc > (0 * TONE_ROI)) && (xc <= (1 * TONE_ROI)) ) { tone = Tone_C5; break; }
-		if ( (xc > (1 * TONE_ROI)) && (xc <= (2 * TONE_ROI)) ) { tone = Tone_D5; break; }
-		if ( (xc > (2 * TONE_ROI)) && (xc <= (3 * TONE_ROI)) ) { tone = Tone_E5; break; }
-		if ( (xc > (3 * TONE_ROI)) && (xc <= (4 * TONE_ROI)) ) { tone = Tone_F5; break; }
-		if ( (xc > (4 * TONE_ROI)) && (xc <= (5 * TONE_ROI)) ) { tone = Tone_G5; break; }
-		if ( (xc > (5 * TONE_ROI)) && (xc <= (6 * TONE_ROI)) ) { tone = Tone_A5; break; }
-		if ( (xc > (6 * TONE_ROI)) && (xc <= (7 * TONE_ROI)) ) { tone = Tone_B5; break; }
+		if ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C5; break; }
+		if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D5; break; }
+		if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E5; break; }
+		if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F5; break; }
+		if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G5; break; }
+		if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A5; break; }
+		if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B5; break; }
 	
 		// Vind toon; Rechter segment, octaaf 6
 		xc = xc - RIGHT_SEGMENT_START_X;
 		
-		if ( (xc > (0 * TONE_ROI)) && (xc <= (1 * TONE_ROI)) ) { tone = Tone_C6; break; }
-		if ( (xc > (1 * TONE_ROI)) && (xc <= (2 * TONE_ROI)) ) { tone = Tone_D6; break; }
-		if ( (xc > (2 * TONE_ROI)) && (xc <= (3 * TONE_ROI)) ) { tone = Tone_E6; break; }
-		if ( (xc > (3 * TONE_ROI)) && (xc <= (4 * TONE_ROI)) ) { tone = Tone_F6; break; }
-		if ( (xc > (4 * TONE_ROI)) && (xc <= (5 * TONE_ROI)) ) { tone = Tone_G6; break; }
-		if ( (xc > (5 * TONE_ROI)) && (xc <= (6 * TONE_ROI)) ) { tone = Tone_A6; break; }
-		if ( (xc > (6 * TONE_ROI)) && (xc <= (7 * TONE_ROI)) ) { tone = Tone_B6; break; }
+		if ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C6; break; }
+		if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D6; break; }
+		if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E6; break; }
+		if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F6; break; }
+		if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G6; break; }
+		if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A6; break; }
+		if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B6; break; }
 	}
 	
 	// Geef gevonden toon

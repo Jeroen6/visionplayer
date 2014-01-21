@@ -46,17 +46,17 @@ void vContrastStretch(image_t *src, // must be a greyscale image
     // Vind highest- & lowest pixel
     for ( ; pSrcData <= pSrcDataEnd; pSrcData++ )
     {
-    if ( *pSrcData < lpx ) { lpx = *pSrcData; }
-    if ( *pSrcData > hpx ) { hpx = *pSrcData; }
+        if ( *pSrcData < lpx ) { lpx = *pSrcData; }
+        if ( *pSrcData > hpx ) { hpx = *pSrcData; }
     }
 
     // Bereken stretch multiplier & divide-by-zero checking
     sFactor  = ((lpx >= hpx) || (bottom >= top)) ? (255.0f) : ((1.0f * top - bottom) / (1.0f * hpx - lpx));
-    pSrcData = &src->data[0][0];		// Reset data pointer naar begin van plaatje
+    pSrcData = &src->data[0][0];        // Reset data pointer naar begin van plaatje
 
     // Pas contrast stretching toe
     for ( ; pSrcData <= pSrcDataEnd; pSrcData++, pDstData++ ) {
-    *pDstData = (uint8_t)( ((*pSrcData - lpx) * sFactor) + sFactorAdd);
+        *pDstData = (uint8_t) ( sFactorAdd + ((*pSrcData - lpx) * sFactor) );
     }
 
     // Wat debug informatie
@@ -73,7 +73,7 @@ void vContrastStretchFast(image_t *src, // must be a greyscale image
     // Debug
     QDEBUG("> vThreshold: Begin");
 
-    vContrastStretch(src, dst, 0, 255);   // Klaar :)
+    vContrastStretch(src, dst, 0, 255);   //  :)
 
     // Debug info
     QDEBUG("> vThreshold: Done");
@@ -91,7 +91,7 @@ void vThreshold(image_t *src,
     // Declaraties variabelen
     uint8_t* pSrcData    = &src->data[0][0];
     uint8_t* pDstData    = &dst->data[0][0];
-    uint8_t* pSrcDataEnd = &src->data[IMG_HEIGHT-1][IMG_WIDTH-1];
+    uint8_t* pSrcDataEnd = &src->data[IMG_HEIGHT-1][IMG_WIDTH]-1;
 
     // Debug
     QDEBUG("> vThreshold: Begin, applying threshold Low = " << low << ", high = " << high);
@@ -119,14 +119,14 @@ void vMarkBorders(image_t *dst,
     QDEBUG("> vMarkBorders: Begin, marking all borders with value of " << value << " to " << MARK );
 
     // Zet border pixels, rand boven en onder
-    for ( x = 0; x != dst->width; x++ )
+    for ( x = 0; x < dst->width; x++ )
     {
         if (dst->data[0][x]             == value) { dst->data[0][x]             = MARK; }   // Boven
         if (dst->data[dst->height-1][x] == value) { dst->data[dst->height-1][x] = MARK; }   // Onder
     }
 
     // Zet border pixels, rand links en rechts
-    for ( y = 0; y != dst->height; y++ )
+    for ( y = 0; y < dst->height; y++ )
     {
         if (dst->data[y][0]            == value) { dst->data[y][0]            = MARK; }     // Links
         if (dst->data[y][dst->width-1] == value) { dst->data[y][dst->width-1] = MARK; }     // Rechts
@@ -151,14 +151,14 @@ void vSetBorders(image_t *src,
     QDEBUG("> vSetBorders: Begin, set all borders to value " << value);
 
     // Zet border pixels, X
-    for ( x = 0; x != src->width; x++ )
+    for ( x = 0; x < src->width; x++ )
     {
         dst->data[0][x]             = value;
         dst->data[src->height-1][x] = value;
     }
 
     // Zet border pixels, Y
-    for ( y = 0; y != src->height; y++ )
+    for ( y = 0; y < src->height; y++ )
     {
       dst->data[y][0]            = value;
       dst->data[y][src->width-1] = value;
@@ -176,18 +176,18 @@ void vRotate180(image_t *img)
 {
     // Declaraties variabelen
     uint8_t *pImgTail = &img->data[0][0];
-    uint8_t *pImgHead = &img->data[IMG_HEIGHT-2][IMG_WIDTH-2];
+    uint8_t *pImgHead = &img->data[IMG_HEIGHT-1][IMG_WIDTH-1];
     uint8_t  tmp      = 0;
 
     // Debug
     QDEBUG("> vRotate180: Begin");
 
     // Rotate
-    for ( ; pImgHead != pImgTail; pImgHead--, pImgTail++ )
+    for ( ; pImgTail < pImgHead; pImgTail++, pImgHead-- )
     {
-    tmp       = *pImgHead;
-    *pImgHead = *pImgTail;
-    *pImgTail = tmp;
+        tmp       = *pImgHead;
+        *pImgHead = *pImgTail;
+        *pImgTail = tmp;
     }
 
     // Debug info
@@ -209,7 +209,7 @@ void vErase(image_t *img)
 
     // Zet alle waarden op NULL
     for ( ; pSrcData <= pSrcDataEnd; pSrcData++ ) {
-        *pSrcData = 0;
+        *pSrcData = 0xFF;
     }
 
     // Debug info
@@ -402,7 +402,7 @@ void vThresholdIsoData(image_t *src,
         meanLeft = meanRight = meanLeftDiv = meanRightDiv = 0;
 
         // Bereken sommen mean links en rechts
-        for (i = 0; i != 256; i++)
+        for (i = 0; i < 256; i++)
         {
             if      ( i < Threshold ) { meanLeft  += i * hist[i]; meanLeftDiv  += hist[i]; }    // 0 < i < T
             else if ( i > Threshold ) { meanRight += i * hist[i]; meanRightDiv += hist[i]; }    // T < i < 255
@@ -454,8 +454,8 @@ void vThresholdOtsu(image_t *src, image_t *dst, eBrightness brightness)
     {
         wB += hist[i];                              // Weight, Background
 
-        if      (wB == 0)     { continue; }
-        else if (wB >= total) { break;    }
+        if      (wB == 0)     { continue; }         // Volgende iteratie als niks te doen
+        else if (wB >= total) { break;    }         // Of stop als einde bereikt is
 
         wF      = total - wB;                       // Weight, Foreground
         sumB   += i * hist[i];                      // Sum, Background
@@ -463,7 +463,7 @@ void vThresholdOtsu(image_t *src, image_t *dst, eBrightness brightness)
         mF      = 1.0f * (sum - sumB) / wF;         // Mean, Foreground
         between = wB * wF * (mB - mF) * (mB - mF);  // Between Class Variance
 
-        // Nieuwe maximum gevonden?
+        // Nieuw maximum gevonden?
         if (between > max)
         {
             max = between;
@@ -565,8 +565,8 @@ void vFindEdges(image_t *src, // must be a binary image
     vMarkConnectedToBorders (dst, 0, connected);
 
     // Markeer randen
-    for ( y = 0; y <= dst->height; y++ )
-    for ( x = 0; x <= dst->width;  x++ )
+    for ( y = 0; y < dst->height; y++ )
+    for ( x = 0; x < dst->width;  x++ )
     {
         if ( dst->data[y][x] == 1 && iNeighbourCount(dst, x, y, MARK, connected) ) {
              dst->data[y][x] = MARK+1;
@@ -574,8 +574,8 @@ void vFindEdges(image_t *src, // must be a binary image
     }
 
     // Verwijder alles behalve de gemarkeerde randen
-    for ( y = 0; y <= dst->height; y++ )
-    for ( x = 0; x <= dst->width;  x++ )
+    for ( y = 0; y < dst->height; y++ )
+    for ( x = 0; x < dst->width;  x++ )
     {
         dst->data[y][x] = (dst->data[y][x] == (MARK + 1) ) ? (1) : (0);
     }
@@ -609,8 +609,8 @@ uint32_t iLabelBlobs(image_t *src, // must be a binary image
     {
         changed = 0;
 
-        for ( y = 0; y != dst->height; y++ )
-        for ( x = 0; x != dst->width;  x++ )
+        for ( y = 0; y < dst->height; y++ )
+        for ( x = 0; x < dst->width;  x++ )
         {
             // Huidige pixel geen achtergrond EN een buurpixel heeft die kleiner is
             if (dst->data[y][x] != 0)
@@ -684,13 +684,7 @@ void vBlobAnalyse(image_t *img,
                   blobinfo_t *pBlobInfo)
 {
     // Declaratie variabelen
-    uint16_t i  = 0;
-    uint16_t x  = 0;
-    uint16_t x0 = 0;
-    uint16_t x1 = 0;
-    uint16_t y  = 0;
-    uint16_t y0 = 0;
-    uint16_t y1 = 0;
+    uint16_t i,x,x0,x1,y,y0,y1;
 
     // Debug
     QDEBUG("> vBlobAnalyse: Begin");
@@ -698,18 +692,20 @@ void vBlobAnalyse(image_t *img,
     // Analyseer blobs
     for ( i = 0; i != blobcount; i++ )
     {
-			pBlobInfo[i].nof_pixels = 0;
-			pBlobInfo[i].perimeter  = 0;
-			
-      // Bereken
-      for ( y = 0; y != img->height; y++ )
-      for ( x = 0; x != img->width;  x++ )
+      pBlobInfo[i].nof_pixels = 0;
+      pBlobInfo[i].perimeter  = 0.0;
+      x0 = y0 = 255;
+      x1 = y1 = 0;
+
+              // Bereken
+      for ( y = 0; y < img->height; y++ )
+      for ( x = 0; x < img->width;  x++ )
       {
           // Als de huidige pixel de gewenste blob waarde heeft
           if (img->data[y][x] == (i+1))
           {
               // Tel aantal pixels
-              pBlobInfo[i].nof_pixels++;
+              pBlobInfo[i].nof_pixels++;    // Aantal pixel in blob
 
               // Vind hoogte en breedte
               if (x < x0) { x0 = x; }
@@ -720,17 +716,17 @@ void vBlobAnalyse(image_t *img,
               // Bereken omtrek gebasseerd op randen pixel
               switch( iNeighbourCount(img, x, y, 0, FOUR) )
               {
-                case 1: pBlobInfo[i].perimeter += 1.0000; break;	// sqrt(1)
-                case 2: pBlobInfo[i].perimeter += 1.4142; break;	// sqrt(2)
-                case 3: pBlobInfo[i].perimeter += 2.2360; break;	// sqrt(5)
+                case 1: pBlobInfo[i].perimeter += 1.00000; break;  // sqrt(1)
+                case 2: pBlobInfo[i].perimeter += 1.41421; break;  // sqrt(2)
+                case 3: pBlobInfo[i].perimeter += 2.23606; break;  // sqrt(5)
                 default: break;
               }
           }
       }
 
-      // Bereken dimensies en formFactorpBlobInfo[i].nof_pixels
-      pBlobInfo[i].height = x1 - x0;
-      pBlobInfo[i].width  = y1 - y0;
+      // Bereken dimensies en formFactor
+      pBlobInfo[i].height = (uint16_t)(x1 - x0);    // Blob hoogte
+      pBlobInfo[i].width  = (uint16_t)(y1 - y0);    // Blob breedte
 
       // Debug
       QDEBUG("> vBlobAnalyse: Blob #" << (i+1) << ", height = "     << pBlobInfo[i].height     << ", width = "     << pBlobInfo[i].width);
@@ -756,8 +752,8 @@ void vCentroid(image_t *img, uint8_t blobnr, uint8_t *xc, uint8_t *yc)
     QDEBUG("> vCentroid: Begin, blobnr. = " << blobnr);
 
     // Bereken momenten
-    for ( y = 0; y != img->height; y++ )
-    for ( x = 0; x != img->width;  x++ )
+    for ( y = 0; y < img->height; y++ )
+    for ( x = 0; x < img->width;  x++ )
     {
         if (img->data[y][x] == blobnr )
         {
@@ -808,22 +804,23 @@ double dNormalizedCentralMoments(image_t *img, uint8_t blobnr, int p, int q)
     vCentroid(img, blobnr, &xc, &yc);
 
     // Bereken Upq
-    for ( y = 0; y != img->height; y++ )
-    for ( x = 0; x != img->width;  x++ )
+    for ( y = 0; y < img->height; y++ )
+    for ( x = 0; x < img->width;  x++ )
     {
         if (img->data[y][x] == blobnr )
         {
             u00++;
-            upq += pow((int32_t)(x - xc), p) * pow((int32_t)(y - yc), q);
+            upq += pow( (int32_t)(x - xc), p) * pow( (int32_t)(y - yc), q);
         }
     }
 
-    // Bereken Ncm
+    // Bereken Normalized Central Moment
     ncm = upq / (u00 * u00);
 
+    // Debug info
     QDEBUG("> dNormalizedCentralMoments: Done, ncm = " << ncm);
 
-    // Geef berekende genormaliseerde central moments
+    // Geef berekende genormaliseerde central moment
     return( ncm );
 }
 
@@ -832,7 +829,7 @@ double dNormalizedCentralMoments(image_t *img, uint8_t blobnr, int p, int q)
 // vMarkConnectedToBorders
 // ----------------------------------------------------------------------------
 void vMarkConnectedToBorders (image_t *img,
-                              uint8_t value,    // Te markeren waarden
+                              uint8_t value,    // Markeer alle pixels die deze waarde hebben
                               eConnected connected)
 {
     // Declaraties variabelen
@@ -848,8 +845,17 @@ void vMarkConnectedToBorders (image_t *img,
         changed = 0;
 
         // Kolommen
-        for( y0 = x0 = 1, x1 = img->width-1, y1 = img->height-1;  x0 <= x1;  y0++, y1-- )
+        for( y0 = y1 = x0 = 0, x1 = img->width;  x0 <= x1;  y0++, y1-- )
         {
+            // Volgende kolom
+            if (y0 == img->height || y1 == 0)
+            {
+                y0 = 1;
+                y1 = img->height-1;
+                x0++;
+                x1--;
+            }
+
             // Link, boven naar onder
             if (img->data[y0][x0] == value && iNeighbourCount(img,x0,y0,MARK,connected) != 0) {
                 img->data[y0][x0] = MARK; changed = 1;
@@ -869,20 +875,20 @@ void vMarkConnectedToBorders (image_t *img,
             if (img->data[y1][x1] == value && iNeighbourCount(img,x1,y1,MARK,connected) != 0) {
                 img->data[y1][x1] = MARK; changed = 1;
             }
-						
-						// Volgende kolom
-            if (y0 == img->height || y1 == 0)
-            {
-                y0 = 1;
-                y1 = img->height-1;
-                x0++;
-                x1--;
-            }
         }
 
         // Rijen
-        for( x0 = y0 = 1, x1 = img->width-1, y1 = img->height-1;  y0 <= y1;  x0++, x1-- )
+        for( x0 = x1 = y0 = 0, y1 = img->height;  y0 <= y1;  x0++, x1-- )
         {
+            // Volgende rij
+            if (x0 == img->width || x1 == 0)
+            {
+                x0 = 1;
+                x1 = img->width-1;
+                y0++;
+                y1--;
+            }
+
             // Boven, links naar rechts
             if (img->data[y0][x0] == value && iNeighbourCount(img,x0,y0,MARK,connected) != 0) {
                 img->data[y0][x0] = MARK; changed = 1;
@@ -901,15 +907,6 @@ void vMarkConnectedToBorders (image_t *img,
             // Onder, rechts naar links
             if (img->data[y1][x1] == value && iNeighbourCount(img,x1,y1,MARK,connected) != 0) {
                 img->data[y1][x1] = MARK; changed = 1;
-            }
-						
-						// Volgende rij
-            if (x0 == img->width || x1 == 0)
-            {
-                x0 = 1;
-                x1 = img->width-1;
-                y0++;
-                y1--;
             }
         }
 
@@ -983,9 +980,8 @@ uint8_t iNeighboursEqualOrHigher(image_t *img,
     }
 
     // Debug info
-    //QDEBUG("iNeighbourCount: Done!");   // Spam
+    //QDEBUG("iNeighboursEqualOrHigher: Done!");      // Spam
 
-    // OK
     return count;
 }
 
@@ -995,18 +991,18 @@ uint8_t iNeighboursEqualOrHigher(image_t *img,
 // ----------------------------------------------------------------------------
 void vDrawLine (image_t *img, const point_t start, const point_t end, const uint8_t size, const uint8_t value)
 {
-    // http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-    // Teken lijn van start x,y -> end x,y, met dikte size en kleurwaarde value
+    // Zie ook: http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+    // Teken lijn van start x,y naar end x,y, met dikte size en kleurwaarde value
 
-    const int32_t dX    = abs(end.x - start.x);             // Delta X
-    const int32_t dY    = abs(end.y - start.y);             // Delta Y
-    const int32_t sX    = (start.x < end.x) ? (1) : (-1);   // Richting X
-    const int32_t sY    = (start.y < end.y) ? (1) : (-1);   // Richting Y
-    const uint8_t width = (size == 0) ? (0) : ((size - 1) / 2);
+    const int16_t dX    = abs(end.x - start.x);                 // Delta X
+    const int16_t dY    = abs(end.y - start.y);                 // Delta Y
+    const int8_t sX     = (start.x < end.x) ? (1) : (-1);       // Richting X
+    const int8_t sY     = (start.y < end.y) ? (1) : (-1);       // Richting Y
+    const uint8_t width = (size > 1) ? ((size - 1) / 2) : 0;    // Dikte radius van de lijn
 
-    uint32_t x  = start.x;
-    uint32_t y  = start.y;
-    int32_t err = (dX > dY ? dX : -dY) / 2;
+    int32_t x   = start.x;                  // Beginpositie x
+    int32_t y   = start.y;                  // Beginpositie y
+    int32_t err = (dX > dY ? dX : -dY) / 2; // Error offset voor elke iteratie
     int32_t e2  = 0;
     uint8_t i   = 0;
 
@@ -1018,27 +1014,22 @@ void vDrawLine (image_t *img, const point_t start, const point_t end, const uint
     {
         e2 = err;
 
-        // Teken pixel
+        // Teken lijnpixel
         img->data[y][x] = value;
 
-        // Teken rondom
-        for ( i = -width; i <= width; i++ )
+        // Teken opgegeven breedte van lijn rondom de centrale lijnpixel
+        for ( i = 1; i <= width; i++ )
         {
-            // Four
-            img->data[y][x+i]   = value;
-            img->data[y][x-i]   = value;
-            img->data[y+i][x]   = value;
-            img->data[y-i][x]   = value;
-
-            // Eight
-            img->data[y+i][x+i] = value;
-            img->data[y+i][x-i] = value;
-            img->data[y-i][x+i] = value;
-            img->data[y-i][x-i] = value;
+            // Check of de pixels niet buiten de grenzen vallen
+            // en teken de pixels rondom (four connected)
+            if ( (x+i) < img->width  ) { img->data[y][x+i] = value; }
+            if ( (y+i) < img->height ) { img->data[y+i][x] = value; }
+            if ( (x-i) > 0           ) { img->data[y][x-i] = value; }
+            if ( (y-i) > 0           ) { img->data[y-i][x] = value; }
         }
 
-        if (e2 > -dX) { err -= dY; x += sX; } // Volgende X
-        if (e2 <  dY) { err += dX; y += sY; } // Volgende Y
+        if (e2 > -dX) { err -= dY; x += sX; }   // Volgende X
+        if (e2 <  dY) { err += dX; y += sY; }   // Volgende Y
     }
 
     // Debug info
@@ -1051,8 +1042,8 @@ void vDrawLine (image_t *img, const point_t start, const point_t end, const uint
 // ----------------------------------------------------------------------------
 form_t eGetShape (double* im1, double* im2)
 {
-    if      ( *im1 < 0.162 && *im1 > 0.155 && *im2 < 1.0e-05) { return CIRCLE;   }
-    else if ( *im1 < 0.170 && *im1 > 0.162 && *im2 < 1.0e-06) { return SQUARE;   }
+    if      ( *im1 < 0.164 && *im1 > 0.155 && *im2 < 1.0e-02) { return CIRCLE;   }
+    else if ( *im1 < 0.180 && *im1 > 0.164 && *im2 < 1.0e-02) { return SQUARE;   }
     else if ( *im1 < 0.250 && *im1 > 0.162 && *im2 > 1.0e-03) { return TRIANGLE; }
     else                                                      { return UNKNOWN;  }
 }
@@ -1061,7 +1052,7 @@ form_t eGetShape (double* im1, double* im2)
 // ----------------------------------------------------------------------------
 // vCropVertical
 // ----------------------------------------------------------------------------
-void vCropVertical (image_t *src, // must be a binary image
+void vCropVertical (image_t *src,
                     image_t *dst,
                     uint8_t val,
                     uint8_t y0,
@@ -1071,217 +1062,17 @@ void vCropVertical (image_t *src, // must be a binary image
     uint8_t x,y = 0;
 
     // Behoud alleen region-of-interrest
-    for (y = 0; y != src->height; y++)
-    for (x = 0; x != src->width;  x++)
+    // Wis alle data die hier buiten valt
+    for (y = 0; y < src->height; y++)
+    for (x = 0; x < src->width;  x++)
     {
-        if ( y >= y0 && y <= y1 )
+        if ( y >= y0 && y <= y1 )               // Binnen, behoud
             dst->data[y][x] = src->data[y][x];
-        else
+        else                                    // Buiten, wis
             dst->data[y][x] = val;
     }
 }
 
-/**
- *  @brief Verifies that the roi is 32 bit aligned
- *  @param[in] img      image_roi_t
- *  @return same or corrected image_roi_t
- */
-image_roi_t sRoiValidate(image_roi_t roi){
-    #warning EVD1 To be implemented: sRoiValidate
-    return roi;
-}
-
-/**
- *  @brief converts image of 7 segment to BCD
- *  @param[in] img      input image_t (max 32x32 pixels)
- *  @return bcd
- */
-int imageToBCD(image_t *img, image_roi_t roi){
-    const uint8_t digit_list[10][7] = {
-        /* A ,  B ,  C ,  D ,  E ,  F ,  G */
-        {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x00},   // 0 - ABCDEF
-        {0x00,0xFF,0xFF,0x00,0x00,0x00,0x00},   // 1 - BC
-        {0xFF,0xFF,0x00,0xFF,0xFF,0x00,0xFF},   // 2 - ABDEG
-        {0xFF,0xFF,0xFF,0xFF,0x00,0x00,0xFF},   // 3 - ABCDF
-        {0x00,0xFF,0xFF,0x00,0x00,0xFF,0xFF},   // 4 - BCFG
-        {0xFF,0x00,0xFF,0xFF,0x00,0xFF,0xFF},   // 5 - ACDFG
-        {0xFF,0x00,0xFF,0xFF,0xFF,0xFF,0xFF},   // 6 - ACDEFG
-        {0xFF,0xFF,0xFF,0x00,0x00,0xFF,0x00},   // 7 - ABCF
-        {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF},   // 8 - ABCDEFG
-        {0xFF,0xFF,0xFF,0xFF,0x00,0xFF,0xFF}    // 9 - ABCDFG
-    };
-    uint8_t segments[7] = {0,0,0,0,0,0,0};
-		float digit_width;
-    float digit_heigth;
-    float aspect_ratio;
-		uint16_t start_x, end_x;
-    uint16_t start_y, end_y;
-    uint16_t w;
-    uint16_t h;
-		uint16_t img_half_x;
-    uint16_t img_half_y_top;
-    uint16_t img_half_y_bottom;
-    uint16_t img_start_x;
-    uint16_t img_end_x;
-    uint16_t img_start_y;
-    uint16_t img_end_y;
-		uint8_t compare;
-		char segmentchars[7];
-		int result;
-		
-    #define SEGMENT_A   0
-    #define SEGMENT_B   1
-    #define SEGMENT_C   2
-    #define SEGMENT_D   3
-    #define SEGMENT_E   4
-    #define SEGMENT_F   5
-    #define SEGMENT_G   6
-    static uint32_t x;
-    static uint32_t y;
-
-
-    /* Step 1: Find beginning and end of digit */
-    start_x = 0xFFFF; end_x = 0;
-    start_y = 0xFFFF; end_y = 0;
-    w = roi.w + roi.x;
-    h = roi.h + roi.y;
-    for(y = roi.y; y<h; y++){
-        for(x = roi.x; x<w; x++){
-            if(img->data[y][x]){
-                // Relative x and y
-                uint16_t rx = x - roi.x;
-                uint16_t ry = y - roi.y;
-                if(rx < start_x)
-                    start_x = rx;
-                if(rx > end_x)
-                    end_x = rx;
-                if(ry < start_y)
-                    start_y = ry;
-                if(ry > end_y)
-                    end_y = ry;
-            }
-        }
-    }
-    // Offset fix
-    end_x++; end_y++;
-
-
-    // Step 2:
-    // We know the ratios of 7 segment displays
-    // Check aspect ratio of 0.5 for everything except the 1
-    digit_width  = end_x - start_x;
-    digit_heigth = end_y - start_y;
-    aspect_ratio = digit_width / digit_heigth;
-    if( aspect_ratio < 0.5 ){
-        // This might be a 1
-        return 1;
-    }
-    if( aspect_ratio > 0.6 ){
-        return -1; // Invalid character
-    }
-
-    // Scan for vertical segments at 1/3 and 2/3 of digit heigth
-    img_half_x         = roi.x + (start_x + (digit_width / 2));
-    img_half_y_top     = roi.y + (start_y + (digit_heigth / 3));
-    img_half_y_bottom  = roi.y + (end_y - (digit_heigth / 3));
-    img_start_x        = roi.x + start_x;
-    img_end_x          = roi.x + start_x + (end_x - start_x);
-    img_start_y        = roi.y + start_y;
-    img_end_y          = roi.y + start_y + (end_y - start_y);
-    // Segments F and E (left)
-    for(x = img_start_x; x < img_half_x; x++){
-        if(img->data[img_half_y_top][x]){
-            segments[SEGMENT_F]++;
-        }
-        if(img->data[img_half_y_bottom][x]){
-            segments[SEGMENT_E]++;
-        }
-        //img->data[img_half_y_top][x] = 1;
-        //img->data[img_half_y_bottom][x] = 2;
-    }
-    // Segments B and C (right)
-    for(x = img_half_x; x < img_end_x; x++){
-        if(img->data[img_half_y_top][x]){
-            segments[SEGMENT_B]++;
-        }
-        if(img->data[img_half_y_bottom][x]){
-            segments[SEGMENT_C]++;
-        }
-        //img->data[img_half_y_top][x] = 3;
-        //img->data[img_half_y_bottom][x] = 4;
-    }
-
-    // Scan for horizontal segments at 1/2 of start_x and end_x
-    // Segment A
-    for(y = img_start_y; y<img_half_y_top; y++){
-        if(img->data[y][img_half_x]){
-            segments[SEGMENT_A]++;
-        }
-        //img->data[y][img_half_x] = 5;
-    }
-    // Segments G
-    for(y = img_half_y_top; y<img_half_y_bottom; y++){
-        if(img->data[y][img_half_x]){
-            segments[SEGMENT_G]++;
-        }
-        //img->data[y][img_half_x] = 6;
-    }
-    // Segments D
-    for(y = img_half_y_bottom; y<img_end_y; y++){
-        if(img->data[y][img_half_x]){
-            segments[SEGMENT_D]++;
-        }
-        //img->data[y][img_half_x] = 7;
-    }
-
-
-    segmentchars[0] = 'A';
-		segmentchars[1] = 'B';
-		segmentchars[2] = 'C';
-		segmentchars[3] = 'D';
-		segmentchars[4] = 'E';
-		segmentchars[5] = 'F';
-		segmentchars[6] = 'G';
-
-    // Step 3: Lookup set segments to a number
-    
-    result = -1;
-    for(y=0; y<10; y++){    // known digit_list
-        compare = 0;
-        for(x=0; x<7; x++){ // found set elements
-            if(digit_list[y][x]){
-                if(segments[x]){
-                    compare++;
-                }else{
-                    compare = 0; break;
-                }
-            }else{
-                if(segments[x]){
-                    compare = 0; break;
-                }else{
-                    compare++;
-                }
-            }
-        }
-        if(compare){
-            result = y;
-            break;
-        }
-    }
-    if(y >= 10) // No char in databse
-        result = -2;
-
-    //QDEBUG("SubRoi from x: " << start_x << " to " << end_x);
-    //QDEBUG("SubRoi from y: " << start_y << " to " << end_y);
-    //QDEBUG("SubRoi aspect ratio: " << aspect_ratio );
-
-
-    for(x=0; x<7; x++)
-        QDEBUG("Set segments: " << segmentchars[x] << " = " << segments[x]);
-
-    QDEBUG("Found " << result);
-    return result;
-}
 
 // ----------------------------------------------------------------------------
 // EOF
