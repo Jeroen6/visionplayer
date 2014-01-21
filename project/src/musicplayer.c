@@ -166,6 +166,7 @@ void vPlayTone (const BeepTone tone)
 	{
 		prevTone = tone;
 		Codec_WriteRegister(0x1E, 0x00);	
+		prevTone = Tone_XX;
 		return;
 	}
 	
