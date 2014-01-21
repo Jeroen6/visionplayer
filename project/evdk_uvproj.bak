@@ -165,7 +165,6 @@
             <Capability>1</Capability>
             <DriverSelection>4104</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe" (-c SWD -ME -p ./obj/evdk.hex -Rst)</Flash3>
           <Flash4></Flash4>
@@ -393,19 +392,29 @@
           <GroupName>user</GroupName>
           <Files>
             <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\motor.c</FilePath>
+            </File>
+            <File>
               <FileName>operators.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\operators.c</FilePath>
             </File>
             <File>
-              <FileName>VisionSet_evd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\VisionSet_evd.c</FilePath>
-            </File>
-            <File>
               <FileName>VisionSet_project.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\VisionSet_project.c</FilePath>
+            </File>
+            <File>
+              <FileName>musicplayer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\musicplayer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -462,26 +471,16 @@
               <FileType>1</FileType>
               <FilePath>.\src\programma.c</FilePath>
             </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>audio_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\audio_driver.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>stm32f4-stdperiph_lib</GroupName>
           <Files>
+            <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\stm32f4xx_it.c</FilePath>
+            </File>
             <File>
               <FileName>stm32f4_discovery_audio_codec.c</FileName>
               <FileType>1</FileType>
@@ -594,7 +593,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\ST\STM32F4xx\STM32F4xx.sfr</SFDFile>
+          <SFDFile>C:\Keil\ARM\SFD\ST\STM32F4xx\STM32F40x.SFR</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -730,7 +729,6 @@
             <Capability>1</Capability>
             <DriverSelection>4103</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe" (-c SWD -ME -p ./flash/evdk.hex -Rst)</Flash3>
           <Flash4></Flash4>
@@ -901,7 +899,7 @@
           <Cads>
             <interw>1</interw>
             <Optim>2</Optim>
-            <oTime>0</oTime>
+            <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -911,9 +909,9 @@
             <Rwpi>0</Rwpi>
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
-            <uSurpInc>0</uSurpInc>
+            <uSurpInc>1</uSurpInc>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--c99</MiscControls>
               <Define>USE_STDPERIPH_DRIVER, STM32F4XX</Define>
               <Undefine></Undefine>
               <IncludePath>.\inc;..\libraries\CMSIS\Include;..\libraries\STM32F4xx_StdPeriph_Driver\inc;..\libraries\CMSIS\ST\STM32F4xx\Include;..\libraries\STM32F4-Discovery_FW_V1.1.0\Utilities\STM32F4-Discovery</IncludePath>
@@ -957,6 +955,16 @@
         <Group>
           <GroupName>user</GroupName>
           <Files>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\motor.c</FilePath>
+            </File>
             <File>
               <FileName>operators.c</FileName>
               <FileType>1</FileType>
@@ -1003,14 +1011,94 @@
               </FileOption>
             </File>
             <File>
-              <FileName>VisionSet_evd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\VisionSet_evd.c</FilePath>
-            </File>
-            <File>
               <FileName>VisionSet_project.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\VisionSet_project.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>4</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
+              <FileName>musicplayer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\musicplayer.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>2</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>4</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
           </Files>
         </Group>
@@ -1067,26 +1155,16 @@
               <FileType>1</FileType>
               <FilePath>.\src\programma.c</FilePath>
             </File>
-            <File>
-              <FileName>stm32f4xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\stm32f4xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>audio_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\audio_driver.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>stm32f4-stdperiph_lib</GroupName>
           <Files>
+            <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\stm32f4xx_it.c</FilePath>
+            </File>
             <File>
               <FileName>stm32f4_discovery_audio_codec.c</FileName>
               <FileType>1</FileType>

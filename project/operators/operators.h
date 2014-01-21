@@ -92,9 +92,17 @@ typedef struct blobinfo_t
 
 typedef struct
 {
-    uint8_t x;
-    uint8_t y;
+    uint16_t x;
+    uint16_t y;
 } point_t;
+
+typedef struct
+{
+    uint16_t x;
+    uint16_t y;
+    uint16_t w;
+    uint16_t h;
+}image_roi_t;
 
 typedef enum
 {
@@ -273,6 +281,9 @@ void vCropVertical (image_t *src, // must be a binary image
                     uint8_t y0,
                     uint8_t y1 );
 
+
+image_roi_t sRoiValidate(image_roi_t);
+int imageToBCD(image_t *img, image_roi_t roi);
 
 #endif // _OPERATORS_H_
 // ----------------------------------------------------------------------------

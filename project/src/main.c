@@ -50,6 +50,8 @@ int main(void)
 	vInitMusicplayer();		// Initialiseer project
 
 
+
+	
   // Allocate memory for images
   src = mem_manager_alloc();
   dst = mem_manager_alloc();
@@ -59,7 +61,7 @@ int main(void)
 		led_toggle(LED_GREEN);
 		
     // Set the maximum frame rate and reset the time
-    timer_set_fps(10);
+    timer_set_fps(15);
     timer_reset();
 
     // Reset image counter to make sure it starts at zero

@@ -4,10 +4,14 @@
 #include "led.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "motor.h"
+
+volatile uint8_t ledsOn = 0;
 
 // This vision set is executed when the system powers on
 void VisionSet1(image_t *pSrc, image_t *pDst)
 {
+	uint8_t allowMotorControl = 1;
   benchmark_t bench;
 	uint8_t blobCount = 0;
 	blobinfo_t* blobinfo;
@@ -20,13 +24,19 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
 	point_t roi_left2;
 	point_t roi_right1;
 	point_t roi_right2;
+	point_t roi_segment_right;
+	point_t roi_segment_left;
+	point_t roi_segment_ctop;
+	point_t roi_segment_cbottom;
 	
+
   // 1. Original source image to PC
   pc_send_string("1. Source image");
   pSrc->lut = LUT_CLIP;
   pc_send_image(pSrc);
 
 	// vContrastStretchFast
+	#if 0
   benchmark_start(&bench, "vContrastStretchFast");
   vContrastStretchFast(pSrc, pDst);
   benchmark_stop(&bench);
@@ -34,6 +44,7 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   pDst->lut = LUT_CLIP;
   pc_send_image(pDst);
   pc_send_string("2. vContrastStretchFast");
+	#endif
 
   // vThresholdIsoData
   benchmark_start(&bench, "vThresholdIsoData");
@@ -71,7 +82,7 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   pDst->lut = LUT_LABELED;
   pc_send_image(pDst);
   pc_send_string("6. vBlobAnalyse");
-	
+		
 	// Herken toon
 	benchmark_start(&bench, "vRecognizeTone");
 	tone = vRecognizeTone(pDst, blobinfo, blobCount);
@@ -92,7 +103,6 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   pc_send_image(pDst);
   pc_send_string("8. vPlayTone");
 	
-	led_toggle(LED_RED);
 	
 	// Horizontale ROI
 	roi_top1.y = ROI_START_Y;  roi_top1.x = 0;
@@ -100,12 +110,40 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
 	roi_bottom1.y = ROI_END_Y; roi_bottom1.x = 0;
 	roi_bottom2.y = ROI_END_Y; roi_bottom2.x = pDst->width;
 	
-	
 	// Verticale ROI
 	roi_left1.y  = 0;            roi_left1.x  = SEVENSEG_START_X;
 	roi_left2.y  = pDst->height; roi_left2.x  = SEVENSEG_START_X;
 	roi_right1.y = 0;            roi_right1.x = SEVENSEG_END_X;
 	roi_right2.y = pDst->height; roi_right2.x = SEVENSEG_END_X;
+	
+	// Find digits
+	image_roi_t digit1_roi,digit2_roi;
+	int digit1=-1,digit2=-1;
+	const uint16_t sevensegWidth = (SEVENSEG_END_X - SEVENSEG_START_X)/ 2;
+	
+	digit1_roi.h = 32; 
+	digit1_roi.w = sevensegWidth;
+	digit1_roi.x = SEVENSEG_START_X;
+	digit1_roi.y = ROI_START_Y;
+	
+	digit2_roi.h = 32;
+	digit2_roi.w = sevensegWidth;
+	digit2_roi.x = SEVENSEG_START_X + sevensegWidth;
+	digit2_roi.y = ROI_START_Y;
+	
+	roi_segment_left.x 		= 0;
+	roi_segment_right.x 	= pDst->width;
+	roi_segment_left.y 		= digit2_roi.y + digit2_roi.h;
+	roi_segment_right.y 	= digit2_roi.y + digit2_roi.h;
+	roi_segment_ctop.x 		= digit1_roi.x + digit2_roi.w;
+	roi_segment_cbottom.x = digit1_roi.x + digit2_roi.w;
+	roi_segment_ctop.y   	= digit1_roi.y;
+	roi_segment_cbottom.y = digit1_roi.y + digit1_roi.h;
+	
+	digit1 = imageToBCD(pDst, digit1_roi);
+	digit2 = imageToBCD(pDst, digit2_roi);
+	
+	
 	
 	vCopy (pSrc, pDst);
 	benchmark_start(&bench, "vDrawLines");
@@ -113,9 +151,38 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
 	vDrawLine(pDst, roi_bottom1, roi_bottom2, 1, 1);
 	vDrawLine(pDst, roi_left1,   roi_left2,   1, 1);
 	vDrawLine(pDst, roi_right1,  roi_right2,  1, 1);
+	vDrawLine(pDst, roi_segment_left,  roi_segment_right,  1, 1);	// 7 segment bottom
+	vDrawLine(pDst, roi_segment_ctop,  roi_segment_cbottom,  1, 1);	// 7 segment center
 	benchmark_stop(&bench);
   pc_send_benchmark(&bench);
   pDst->lut = LUT_CLIP;
   pc_send_image(pDst);
   pc_send_string("9. vDrawLine");
+	
+		
+	// user interaction
+	if(allowMotorControl && ledsOn < 5){
+		// Enable target leds
+		setAux(1);
+		allowMotorControl=0;
+		ledsOn++;
+	}
+	// Allow enable rotate if valid 7 segments
+	if(digit1 >= 0 && digit2 >= 0){
+		led_reset(LED_RED);	
+		if(GPIOA->IDR & (1<<0)){
+
+			if(allowMotorControl){
+				// Calculate digits to time
+				uint32_t time_ms = ((digit1 * 10)+(digit2))*1000;
+				SMC_step(1600,1,time_ms,1);
+				allowMotorControl = 0;
+			}
+		}else{
+			
+		}
+	
+	}else{
+		led_set(LED_RED);
+	}
 }

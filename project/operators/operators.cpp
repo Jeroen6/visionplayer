@@ -144,28 +144,38 @@ void vSetBorders(image_t *src,
                  image_t *dst,
                  uint8_t value)
 {
-    // Declaraties variabelen
-    uint32_t x,y = 0;
+    // Copy image
+    vCopy(src,dst);
 
-    // Debug
-    QDEBUG("> vSetBorders: Begin, set all borders to value " << value);
-
-    // Zet border pixels, X
-    for ( x = 0; x < src->width; x++ )
+    // Masker
+    uint32_t mask = value | value<<8 | value<<16 | value<<24;
+    // Set top+bottom
     {
-        dst->data[0][x]             = value;
-        dst->data[src->height-1][x] = value;
+        // Top word pointer
+        uint32_t *dst_data_t = (uint32_t *)&dst->data[0][0];
+        // Bottom word pointer
+        uint32_t *dst_data_b = (uint32_t *)&dst->data[dst->height-1][0];
+        // Loop
+        uint32_t i = src->width/4;
+        while ( i-- ){
+            *dst_data_t++ = mask;
+            *dst_data_b++ = mask;
+        }
     }
-
-    // Zet border pixels, Y
-    for ( y = 0; y < src->height; y++ )
+    // Set sides
     {
-      dst->data[y][0]            = value;
-      dst->data[y][src->width-1] = value;
+        uint8_t *dst_data_l = &dst->data[1][0];
+        uint8_t *dst_data_r = &dst->data[1][dst->width - 1];
+        uint32_t i = dst->height-2;
+        while ( i-- ){
+            // Left
+            *dst_data_l = value;
+            dst_data_l += dst->width;
+            // Right
+            *dst_data_r = value;
+            dst_data_r += dst->width;
+        }
     }
-
-    // Debug info
-    QDEBUG("> vSetBorders: Done");
 }
 
 
@@ -520,30 +530,90 @@ void vFillHoles(image_t *src, // must be a binary image
 // ----------------------------------------------------------------------------
 // vRemoveBorderBlobs
 // ----------------------------------------------------------------------------
-void vRemoveBorderBlobs(image_t *src,           // must be a binary image
+// ----------------------------------------------------------------------------
+void vRemoveBorderBlobs(image_t *src, // must be a binary image
                         image_t *dst,
-                        eConnected connected)   // FOUR | EIGHT
+                        eConnected connected) // FOUR | EIGHT
 {
-    // Declaraties variabelen
-    uint8_t* pSrcData    = &src->data[0][0];
-    uint8_t* pDstData    = &dst->data[0][0];
-    uint8_t* pSrcDataEnd = &src->data[IMG_HEIGHT-1][IMG_WIDTH-1];
-
-    // Debug
-    QDEBUG("> vRemoveBorderBlobs: Begin");
-
-    // Markeer border pixels die waarde 1 hebben en Markeer borderblobs
-    vMarkBorders(dst, 1);
-    vMarkConnectedToBorders (dst, 1, connected);
-
-    // Verwijder alle gemarkeerde pixels / blobs
-    for ( ; pSrcData <= pSrcDataEnd; pSrcData++, pDstData++ )
+    // Step 1:  Increment border blob pixels on image edge
+#if 0   // Fix for bottom line constant value issue on evdk target
+    // Set top+bottom
     {
-        if (*pDstData == MARK) { *pDstData  = 0; }      // Gemarkeerde pixel?
+        // Top word pointer
+        uint8_t *src_data_t = &src->data[0][0];
+        uint8_t *dst_data_t = &dst->data[0][0];
+        // Bottom word pointer
+        uint8_t *src_data_b = &src->data[dst->height-1][0];
+        uint8_t *dst_data_b = &dst->data[dst->height-1][0];
+        // Loop
+        uint8_t i = src->width;
+        while ( i-- ){
+            if(*src_data_t++ == 1) *dst_data_t = 2; else *dst_data_t = 0;
+            if(*src_data_b++ == 1) *dst_data_b = 2; else *dst_data_b = 0;
+            dst_data_t++;
+            dst_data_b++;
+        }
+    }
+    // Set sides
+    {
+        uint8_t *src_data_l = &src->data[1][0];
+        uint8_t *dst_data_l = &dst->data[1][0];
+        uint8_t *src_data_r = &src->data[1][dst->width - 1];
+        uint8_t *dst_data_r = &dst->data[1][dst->width - 1];
+        uint32_t i = dst->height-2;
+        while ( i-- ){
+            // Left
+            if(*src_data_l == 1) *dst_data_l = 2; else *dst_data_l = 0;
+            src_data_l += dst->width;
+            dst_data_l += dst->width;
+            // Right
+            if(*src_data_r == 1) *dst_data_r = 2; else *dst_data_r = 0;
+            src_data_r += dst->width;
+            dst_data_r += dst->width;
+        }
+    }
+#else
+    vSetBorders(src,dst,2);
+#endif
+
+    // Step 2:  Loop to set all border blob pixels to 2
+    {
+        uint32_t iterations = 0;
+        uint32_t found = 1;
+        uint32_t width = dst->width;
+        uint32_t height = dst->height;
+        while(found != 0){
+            uint32_t x,y;
+            found = 0;
+            for(y=0; y < height; y++){
+                for(x=0; x < width; x++){
+                    if(dst->data[y][x] == 1){
+                        if(iNeighbourCount(dst,x,y,2,connected)){
+                            dst->data[y][x] = 2;
+                            found++;
+                        }
+                    }
+                }
+            }
+            if(found != 0){
+                for(x=0; x < width; x++){
+                    for(y=0; y < height; y++){
+                        if(dst->data[y][x] == 1){
+                            if(iNeighbourCount(dst,x,y,2,connected)){
+                                dst->data[y][x] = 2;
+                                found++;
+                            }
+                        }
+                    }
+                }
+            }
+            iterations++;
+        }
+        QDEBUG("Removed border blobs in "<<iterations<<" iterations + border++");
     }
 
-    // Debug info
-    QDEBUG("> vRemoveBorderBlobs: Done");
+    // Step 3:  Remove all selected borderblob pixels
+    vSetSelectedToValue(src,dst,2,0);
 }
 
 
@@ -1073,6 +1143,191 @@ void vCropVertical (image_t *src,
     }
 }
 
+/**
+ *  @brief Verifies that the roi is 32 bit aligned
+ *  @param[in] img      image_roi_t
+ *  @return same or corrected image_roi_t
+ */
+image_roi_t sRoiValidate(image_roi_t roi){
+    #warning EVD1 To be implemented: sRoiValidate
+    return roi;
+}
+
+/**
+ *  @brief converts image of 7 segment to BCD
+ *  @param[in] img      input image_t (max 32x32 pixels)
+ *  @return bcd
+ */
+int imageToBCD(image_t *img, image_roi_t roi){
+    const uint8_t digit_list[10][7] = {
+        /* A ,  B ,  C ,  D ,  E ,  F ,  G */
+        {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x00},   // 0 - ABCDEF
+        {0x00,0xFF,0xFF,0x00,0x00,0x00,0x00},   // 1 - BC
+        {0xFF,0xFF,0x00,0xFF,0xFF,0x00,0xFF},   // 2 - ABDEG
+        {0xFF,0xFF,0xFF,0xFF,0x00,0x00,0xFF},   // 3 - ABCDF
+        {0x00,0xFF,0xFF,0x00,0x00,0xFF,0xFF},   // 4 - BCFG
+        {0xFF,0x00,0xFF,0xFF,0x00,0xFF,0xFF},   // 5 - ACDFG
+        {0xFF,0x00,0xFF,0xFF,0xFF,0xFF,0xFF},   // 6 - ACDEFG
+        {0xFF,0xFF,0xFF,0x00,0x00,0xFF,0x00},   // 7 - ABCF
+        {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF},   // 8 - ABCDEFG
+        {0xFF,0xFF,0xFF,0xFF,0x00,0xFF,0xFF}    // 9 - ABCDFG
+    };
+    uint8_t segments[7] = {0,0,0,0,0,0,0};
+    #define SEGMENT_A   0
+    #define SEGMENT_B   1
+    #define SEGMENT_C   2
+    #define SEGMENT_D   3
+    #define SEGMENT_E   4
+    #define SEGMENT_F   5
+    #define SEGMENT_G   6
+    uint32_t x;
+    uint32_t y;
+
+
+    /* Step 1: Find beginning and end of digit */
+    uint16_t start_x = 0xFFFF, end_x = 0;
+    uint16_t start_y = 0xFFFF, end_y = 0;
+    uint16_t w = roi.w + roi.x;
+    uint16_t h = roi.h + roi.y;
+    for(y = roi.y; y<h; y++){
+        for(x = roi.x; x<w; x++){
+            if(img->data[y][x]){
+                // Relative x and y
+                uint16_t rx = x - roi.x;
+                uint16_t ry = y - roi.y;
+                if(rx < start_x)
+                    start_x = rx;
+                if(rx > end_x)
+                    end_x = rx;
+                if(ry < start_y)
+                    start_y = ry;
+                if(ry > end_y)
+                    end_y = ry;
+            }
+        }
+    }
+    // Offset fix
+    end_x++; end_y++;
+
+
+    // Step 2:
+    // We know the ratios of 7 segment displays
+    // Check aspect ratio of 0.5 for everything except the 1
+    float digit_width  = end_x - start_x;
+    float digit_heigth = end_y - start_y;
+    float aspect_ratio = digit_width / digit_heigth;
+    if( aspect_ratio < 0.5f ){
+        // This might be a 1
+        return 1;
+    }
+    if( aspect_ratio > 0.7f ){
+        return -6; // Invalid character
+    }
+		if( digit_heigth < 10.0f){
+				// Must be at leas 10 pixel high
+				return -3;
+		}
+		if( digit_width < 10.0f){
+				// Must be at leas 10 pixel wide
+				return -4;
+		}
+
+    // Scan for vertical segments at 1/3 and 2/3 of digit heigth
+    uint16_t img_half_x         = roi.x + (start_x + (digit_width / 2));
+    uint16_t img_half_y_top     = roi.y + (start_y + (digit_heigth / 3));
+    uint16_t img_half_y_bottom  = roi.y + (end_y - (digit_heigth / 3));
+    uint16_t img_start_x        = roi.x + start_x;
+    uint16_t img_end_x          = roi.x + start_x + (end_x - start_x);
+    uint16_t img_start_y        = roi.y + start_y;
+    uint16_t img_end_y          = roi.y + start_y + (end_y - start_y);
+    // Segments F and E (left)
+    for(x = img_start_x; x < img_half_x; x++){
+        if(img->data[img_half_y_top][x]){
+            segments[SEGMENT_F]++;
+        }
+        if(img->data[img_half_y_bottom][x]){
+            segments[SEGMENT_E]++;
+        }
+        //img->data[img_half_y_top][x] = 1;
+        //img->data[img_half_y_bottom][x] = 2;
+    }
+    // Segments B and C (right)
+    for(x = img_half_x; x < img_end_x; x++){
+        if(img->data[img_half_y_top][x]){
+            segments[SEGMENT_B]++;
+        }
+        if(img->data[img_half_y_bottom][x]){
+            segments[SEGMENT_C]++;
+        }
+        //img->data[img_half_y_top][x] = 3;
+        //img->data[img_half_y_bottom][x] = 4;
+    }
+
+    // Scan for horizontal segments at 1/2 of start_x and end_x
+    // Segment A
+    for(y = img_start_y; y<img_half_y_top; y++){
+        if(img->data[y][img_half_x]){
+            segments[SEGMENT_A]++;
+        }
+        //img->data[y][img_half_x] = 5;
+    }
+    // Segments G
+    for(y = img_half_y_top; y<img_half_y_bottom; y++){
+        if(img->data[y][img_half_x]){
+            segments[SEGMENT_G]++;
+        }
+        //img->data[y][img_half_x] = 6;
+    }
+    // Segments D
+    for(y = img_half_y_bottom; y<img_end_y; y++){
+        if(img->data[y][img_half_x]){
+            segments[SEGMENT_D]++;
+        }
+        //img->data[y][img_half_x] = 7;
+    }
+
+
+//    char segmentchars[7] = {'A','B','C','D','E','F','G'};
+
+    // Step 3: Lookup set segments to a number
+    uint8_t compare;
+    int result = -1;
+    for(y=0; y<10; y++){    // known digit_list
+        compare = 0;
+        for(x=0; x<7; x++){ // found set elements
+            if(digit_list[y][x]){
+                if(segments[x]){
+                    compare++;
+                }else{
+                    compare = 0; break;
+                }
+            }else{
+                if(segments[x]){
+                    compare = 0; break;
+                }else{
+                    compare++;
+                }
+            }
+        }
+        if(compare){
+            result = y;
+            break;
+        }
+    }
+    if(y >= 10) // No char in databse
+        result = -7;
+
+    //QDEBUG("SubRoi from x: " << start_x << " to " << end_x);
+    //QDEBUG("SubRoi from y: " << start_y << " to " << end_y);
+    //QDEBUG("SubRoi aspect ratio: " << aspect_ratio );
+
+
+    for(x=0; x<7; x++)
+        QDEBUG("Set segments: " << segmentchars[x] << " = " << segments[x]);
+
+    QDEBUG("Found " << result);
+    return result;
+}
 
 // ----------------------------------------------------------------------------
 // EOF

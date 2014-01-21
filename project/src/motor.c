@@ -51,6 +51,8 @@ void motor_init(void){
 	USART_Init(USART3, &uartInit);
 	// Enable uart
 	USART_Cmd(USART3, ENABLE);
+	
+
 }
 
 /**

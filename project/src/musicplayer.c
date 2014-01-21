@@ -13,6 +13,19 @@
 //-------------------------------------------------------------------
 const uint16_t AUDIO_SAMPLE[48] = { 0 };	// Stilte
 
+volatile uint8_t UserButtonPressed = 0;
+/**
+  * @brief  This function handles EXTI0_IRQ Handler.
+  * @param  None
+  * @retval None
+  */
+void EXTI2_IRQHandler(void)
+{
+  UserButtonPressed = 0x01;
+  
+  /* Clear the EXTI line pending bit */
+  EXTI_ClearITPendingBit(EXTI_Line0);
+}
 
 //-------------------------------------------------------------------
 // Musicplayer_Init
@@ -27,17 +40,51 @@ void vInitMusicplayer (void)
 	
 	// Motor init
 	motor_init();
-	setLed(1);
 	
-	/*
+	// User button init
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  /* Enable the BUTTON Clock */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+  /* Configure Button pin as input */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+#if 0
+    /* Connect Button EXTI Line to Button GPIO Pin */
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource0);
+
+    /* Configure Button EXTI line */
+    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;  
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    /* Enable and set Button EXTI Interrupt to the lowest priority */
+    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+    NVIC_Init(&NVIC_InitStructure); 
+#endif
+	
+	
 	// Motor test
 	// Dit staat hier omdat een van de andere init's niet werkt zonder evdk
-	motor_init();
-	setLedBlink();
-	{int i; for(i=0;i<1000000;i++);}	// Small delay for the motor control board to accept the previous command
-	// Motor één rondje
-	SMC_step(1600,1,1000,1);
-	*/
+	//motor_init();
+	//setLedBlink();
+	//{int i; for(i=0;i<1000000;i++);}	// Small delay for the motor control board to accept the previous command
+	//// Motor één rondje
+	//SMC_step(1600,1,1000,1);
+
 	
 }
 
@@ -50,6 +97,7 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
 	BeepTone tone   = Tone_XX;
 	uint8_t i       = 0;
 	uint8_t	xc, yc  = 0;
+	uint8_t tonePos = 0;
 	
 	// Ga door alle gevonden blobs heen, herken tonen
 	for (i = 0; i < blobCount; i++)
@@ -72,26 +120,26 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
 		}
 		
 		// Vind toon; Linker segment, octaaf 5
-		xc = xc - LEFT_SEGMENT_START_X;
+		tonePos = xc - LEFT_SEGMENT_START_X;
 		
-		if ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C5; break; }
-		if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D5; break; }
-		if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E5; break; }
-		if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F5; break; }
-		if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G5; break; }
-		if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A5; break; }
-		if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B5; break; }
+		if ( (tonePos > (0 * TONE_HOR_PX)) && (tonePos <= (1 * TONE_HOR_PX)) ) { tone = Tone_C5; break; }
+		if ( (tonePos > (1 * TONE_HOR_PX)) && (tonePos <= (2 * TONE_HOR_PX)) ) { tone = Tone_D5; break; }
+		if ( (tonePos > (2 * TONE_HOR_PX)) && (tonePos <= (3 * TONE_HOR_PX)) ) { tone = Tone_E5; break; }
+		if ( (tonePos > (3 * TONE_HOR_PX)) && (tonePos <= (4 * TONE_HOR_PX)) ) { tone = Tone_F5; break; }
+		if ( (tonePos > (4 * TONE_HOR_PX)) && (tonePos <= (5 * TONE_HOR_PX)) ) { tone = Tone_G5; break; }
+		if ( (tonePos > (5 * TONE_HOR_PX)) && (tonePos <= (6 * TONE_HOR_PX)) ) { tone = Tone_A5; break; }
+		if ( (tonePos > (6 * TONE_HOR_PX)) && (tonePos <= (7 * TONE_HOR_PX)) ) { tone = Tone_B5; break; }
 	
 		// Vind toon; Rechter segment, octaaf 6
-		xc = xc - RIGHT_SEGMENT_START_X;
+		tonePos = tonePos - RIGHT_SEGMENT_START_X;
 		
-		if ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C6; break; }
-		if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D6; break; }
-		if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E6; break; }
-		if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F6; break; }
-		if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G6; break; }
-		if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A6; break; }
-		if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B6; break; }
+		if ( (tonePos > (0 * TONE_HOR_PX)) && (tonePos <= (1 * TONE_HOR_PX)) ) { tone = Tone_C6; break; }
+		if ( (tonePos > (1 * TONE_HOR_PX)) && (tonePos <= (2 * TONE_HOR_PX)) ) { tone = Tone_D6; break; }
+		if ( (tonePos > (2 * TONE_HOR_PX)) && (tonePos <= (3 * TONE_HOR_PX)) ) { tone = Tone_E6; break; }
+		if ( (tonePos > (3 * TONE_HOR_PX)) && (tonePos <= (4 * TONE_HOR_PX)) ) { tone = Tone_F6; break; }
+		if ( (tonePos > (4 * TONE_HOR_PX)) && (tonePos <= (5 * TONE_HOR_PX)) ) { tone = Tone_G6; break; }
+		if ( (tonePos > (5 * TONE_HOR_PX)) && (tonePos <= (6 * TONE_HOR_PX)) ) { tone = Tone_A6; break; }
+		if ( (tonePos > (6 * TONE_HOR_PX)) && (tonePos <= (7 * TONE_HOR_PX)) ) { tone = Tone_B6; break; }
 	}
 	
 	// Geef gevonden toon
@@ -116,6 +164,7 @@ void vPlayTone (const BeepTone tone)
 	// Stop toon als nodig
 	else if ( tone == Tone_XX )
 	{
+		prevTone = tone;
 		Codec_WriteRegister(0x1E, 0x00);	
 		return;
 	}
