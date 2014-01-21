@@ -74,24 +74,24 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
 		// Vind toon; Linker segment, octaaf 5
 		xc = xc - LEFT_SEGMENT_START_X;
 		
-		if ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C5; break; }
-		if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D5; break; }
-		if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E5; break; }
-		if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F5; break; }
-		if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G5; break; }
-		if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A5; break; }
-		if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B5; break; }
+		if      ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C5; break; }
+		else if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D5; break; }
+		else if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E5; break; }
+		else if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F5; break; }
+		else if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G5; break; }
+		else if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A5; break; }
+		else if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B5; break; }
 	
 		// Vind toon; Rechter segment, octaaf 6
 		xc = xc - RIGHT_SEGMENT_START_X;
 		
-		if ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C6; break; }
-		if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D6; break; }
-		if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E6; break; }
-		if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F6; break; }
-		if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G6; break; }
-		if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A6; break; }
-		if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B6; break; }
+		if      ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C6; break; }
+		else if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D6; break; }
+		else if ( (xc > (2 * TONE_HOR_PX)) && (xc <= (3 * TONE_HOR_PX)) ) { tone = Tone_E6; break; }
+		else if ( (xc > (3 * TONE_HOR_PX)) && (xc <= (4 * TONE_HOR_PX)) ) { tone = Tone_F6; break; }
+		else if ( (xc > (4 * TONE_HOR_PX)) && (xc <= (5 * TONE_HOR_PX)) ) { tone = Tone_G6; break; }
+		else if ( (xc > (5 * TONE_HOR_PX)) && (xc <= (6 * TONE_HOR_PX)) ) { tone = Tone_A6; break; }
+		else if ( (xc > (6 * TONE_HOR_PX)) && (xc <= (7 * TONE_HOR_PX)) ) { tone = Tone_B6; break; }
 	}
 	
 	// Geef gevonden toon
@@ -117,6 +117,7 @@ void vPlayTone (const BeepTone tone)
 	else if ( tone == Tone_XX )
 	{
 		Codec_WriteRegister(0x1E, 0x00);	
+		prevTone = Tone_XX;
 		return;
 	}
 	

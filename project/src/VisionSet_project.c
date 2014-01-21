@@ -11,7 +11,7 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   benchmark_t bench;
 	uint8_t blobCount = 0;
 	blobinfo_t* blobinfo;
-	BeepTone tone;
+	BeepTone tone = Tone_XX;
 	point_t roi_top1;
 	point_t roi_top2;
 	point_t roi_bottom1;
@@ -92,14 +92,15 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   pc_send_image(pDst);
   pc_send_string("8. vPlayTone");
 	
-	led_toggle(LED_RED);
+	// Zet led als een toon gedetecteerd is
+	if  (tone != Tone_XX) { led_set  (LED_RED); }	// Toon gevonden
+	else                  { led_reset(LED_RED); }	// Geen toon
 	
 	// Horizontale ROI
-	roi_top1.y = ROI_START_Y;  roi_top1.x = 0;
-	roi_top2.y = ROI_START_Y;  roi_top2.x = pDst->width;
-	roi_bottom1.y = ROI_END_Y; roi_bottom1.x = 0;
-	roi_bottom2.y = ROI_END_Y; roi_bottom2.x = pDst->width;
-	
+	roi_top1.y    = ROI_START_Y; roi_top1.x = 0;
+	roi_top2.y    = ROI_START_Y; roi_top2.x = pDst->width;
+	roi_bottom1.y = ROI_END_Y;   roi_bottom1.x = 0;
+	roi_bottom2.y = ROI_END_Y;   roi_bottom2.x = pDst->width;
 	
 	// Verticale ROI
 	roi_left1.y  = 0;            roi_left1.x  = SEVENSEG_START_X;
@@ -109,10 +110,10 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
 	
 	vCopy (pSrc, pDst);
 	benchmark_start(&bench, "vDrawLines");
-	vDrawLine(pDst, roi_top1,    roi_top2,    1, 1);
-	vDrawLine(pDst, roi_bottom1, roi_bottom2, 1, 1);
-	vDrawLine(pDst, roi_left1,   roi_left2,   1, 1);
-	vDrawLine(pDst, roi_right1,  roi_right2,  1, 1);
+	vDrawLine(pDst, roi_top1,    roi_top2,    1, 255);
+	vDrawLine(pDst, roi_bottom1, roi_bottom2, 1, 255);
+	vDrawLine(pDst, roi_left1,   roi_left2,   1, 255);
+	vDrawLine(pDst, roi_right1,  roi_right2,  1, 255);
 	benchmark_stop(&bench);
   pc_send_benchmark(&bench);
   pDst->lut = LUT_CLIP;
