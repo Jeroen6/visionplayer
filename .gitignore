@@ -6,3 +6,11 @@
 *.o
 *.__i
 *.lst
+*.Bak
+*.dep
+*.axf
+*.hex
+*.htm
+*.lnp
+*.map
+*.Stephan
