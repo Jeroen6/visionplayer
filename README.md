@@ -7,3 +7,4 @@ The device plays audio from a drawn sketch folded around a cilinder.
 
 A complementary stepper motor control is used to rotate the cilinder at a speed read from 7 segments symbols on the sketch.
 
+https://github.com/Jeroen6/Stepper-Motor-Board
