@@ -120,8 +120,9 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
     }
     
     // Negeer blob als deze (volledig!) buiten de region-of-interrest strook valt
-    else if ( (yb > ROI_START_Y && yo > ROI_START_Y) || 
-              (yb < ROI_END_Y   && yo < ROI_END_Y)   )
+		else if ( !(yc > ROI_START_Y && yc < ROI_END_Y)  )
+    //else if ( ((yb < ROI_START_Y) && (yo < ROI_START_Y)) || 
+    //          ((yb > ROI_END_Y)   && (yo > ROI_END_Y))   )
     {
       continue;
     }
@@ -143,7 +144,7 @@ BeepTone vRecognizeTone (image_t* img, const blobinfo_t* blobinfo, const uint8_t
     // Vind toon; Rechter segment, octaaf 6
     else if ( (xc > SEVENSEG_END_X) && (xc < img->width) )
     {
-      xc = xc - RIGHT_SEGMENT_START_X;
+      xc = xc - RIGHT_SEGMENT_START_X - 5;
       
       if      ( (xc > (0 * TONE_HOR_PX)) && (xc <= (1 * TONE_HOR_PX)) ) { tone = Tone_C6; break; }
       else if ( (xc > (1 * TONE_HOR_PX)) && (xc <= (2 * TONE_HOR_PX)) ) { tone = Tone_D6; break; }

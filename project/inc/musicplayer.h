@@ -23,7 +23,7 @@
 #define ROI_START_Y             60              // Start van verticale ROI in pixels
 #define ROI_END_Y               64              // Einde van verticale ROI in pixels
 #define TONE_HOR_PX            8              // Maximale horizontale aantal pixels per toon
-#define TONE_MIN_PX             4              // Minimale aantal pixels in een toon blob totaal
+#define TONE_MIN_PX             3              // Minimale aantal pixels in een toon blob totaal
 
 typedef enum
 {

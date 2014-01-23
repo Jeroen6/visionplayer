@@ -130,8 +130,8 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   
   
   // Zet led als een toon gedetecteerd is
-  if  (tone != Tone_XX) { led_set  (LED_RED); }  // Toon gevonden
-  else                  { led_reset(LED_RED); }  // Geen toon
+  if  (tone != Tone_XX) { led_set  (LED_ORANGE); }  // Toon gevonden
+  else                  { led_reset(LED_ORANGE); }  // Geen toon
   
   // Horizontale ROI
   roi_top1.y    = ROI_START_Y; roi_top1.x = 0;
@@ -179,8 +179,8 @@ void VisionSet1(image_t *pSrc, image_t *pDst)
   vDrawLine(pDst, roi_bottom1, roi_bottom2, 1, 255);
   vDrawLine(pDst, roi_left1,   roi_left2,   1, 255);
   vDrawLine(pDst, roi_right1,  roi_right2,  1, 255);
-  vDrawLine(pDst, roi_segment_left,  roi_segment_right,  1, 1);  // 7 segment bottom
-  vDrawLine(pDst, roi_segment_ctop,  roi_segment_cbottom,  1, 1);  // 7 segment center
+  vDrawLine(pDst, roi_segment_left,  roi_segment_right,  1, 255);  // 7 segment bottom
+  vDrawLine(pDst, roi_segment_ctop,  roi_segment_cbottom,  1, 255);  // 7 segment center
   benchmark_stop(&bench);
   pc_send_benchmark(&bench);
   pDst->lut = LUT_CLIP;
